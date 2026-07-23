@@ -161,6 +161,16 @@ When a user asks a question:
 4. Gemini generates an answer based on the provided context.
 5. Source document and page references are returned.
 
+## 🖥️ Screenshots
+
+### Home Page
+
+![NeuraDocs Home Page](home.png)
+
+### Dashboard
+
+![NeuraDocs Dashboard](home1.png)
+
 ## 🔌 API Endpoints
 
 | Method   | Endpoint               | Description                   |
