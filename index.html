@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NeuraDocs | AI Knowledge Assistant</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #080b14;
+    --sidebar: #0d111c;
+    --card: rgba(20, 25, 40, 0.78);
+    --card-hover: rgba(27, 33, 52, 0.9);
+    --border: rgba(255,255,255,0.08);
+    --text: #f5f7ff;
+    --muted: #8d96aa;
+    --primary: #7c5cff;
+    --primary-light: #9b83ff;
+    --cyan: #28d7ff;
+    --success: #32d583;
+    --danger: #ff5c70;
+}
+
+body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(124,92,255,0.15), transparent 30%),
+        radial-gradient(circle at 85% 80%, rgba(40,215,255,0.08), transparent 30%),
+        var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* Layout */
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 270px;
+    background: rgba(13,17,28,0.88);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--border);
+    padding: 25px 18px;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 35px;
+    padding: 0 10px;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    background: linear-gradient(135deg, var(--primary), var(--cyan));
+    box-shadow: 0 8px 25px rgba(124,92,255,0.3);
+}
+
+.logo h2 {
+    font-size: 18px;
+}
+
+.logo span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.nav-title {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 0 12px;
+    margin-bottom: 10px;
+}
+
+.nav-item {
+    padding: 12px 14px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: 0.25s;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: rgba(124,92,255,0.14);
+    color: white;
+}
+
+.sidebar-stats {
+    margin-top: 30px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.025);
+    border-radius: 14px;
+}
+
+.sidebar-stat {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.sidebar-stat:last-child {
+    margin-bottom: 0;
+}
+
+.sidebar-stat span {
+    color: var(--muted);
+}
+
+.sidebar-stat strong {
+    color: var(--primary-light);
+}
+
+/* Main */
+
+.main {
+    margin-left: 270px;
+    width: calc(100% - 270px);
+    padding: 30px 40px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.topbar h1 {
+    font-size: 28px;
+    letter-spacing: -0.5px;
+}
+
+.topbar p {
+    color: var(--muted);
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(50,213,131,0.08);
+    border: 1px solid rgba(50,213,131,0.2);
+    color: var(--success);
+    padding: 9px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--success);
+}
+
+/* Cards */
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 25px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-title h2 {
+    font-size: 17px;
+}
+
+.icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(124,92,255,0.13);
+}
+
+/* Upload */
+
+.upload-card {
+    margin-bottom: 25px;
+}
+
+.upload-zone {
+    border: 1.5px dashed rgba(124,92,255,0.45);
+    background: rgba(124,92,255,0.035);
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+    background: rgba(124,92,255,0.1);
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.upload-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 15px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary), #4d9cff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 10px 30px rgba(124,92,255,0.25);
+}
+
+.upload-zone h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.upload-zone p {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.upload-zone strong {
+    color: var(--primary-light);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+/* Status */
+
+.upload-status {
+    display: none;
+    margin-top: 15px;
+    padding: 13px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.upload-status.success {
+    display: block;
+    color: var(--success);
+    background: rgba(50,213,131,0.08);
+    border: 1px solid rgba(50,213,131,0.15);
+}
+
+.upload-status.error {
+    display: block;
+    color: var(--danger);
+    background: rgba(255,92,112,0.08);
+    border: 1px solid rgba(255,92,112,0.15);
+}
+
+/* Documents */
+
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: 0.25s;
+}
+
+.document-item:hover {
+    background: var(--card-hover);
+    border-color: rgba(124,92,255,0.3);
+}
+
+.document-icon {
+    width: 38px;
+    height: 42px;
+    border-radius: 8px;
+    background: rgba(255,92,112,0.1);
+    color: #ff6f7f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.document-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.document-name {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.document-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+.btn-delete {
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 6px;
+}
+
+.btn-delete:hover {
+    color: var(--danger);
+}
+
+/* Two column */
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+/* Inputs */
+
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="text"],
+textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid var(--border);
+    color: white;
+    border-radius: 11px;
+    padding: 13px 15px;
+    font-family: inherit;
+    outline: none;
+    transition: 0.25s;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(124,92,255,0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #687186;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.6;
+}
+
+/* Buttons */
+
+.btn {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 19px;
+    color: white;
+    background: linear-gradient(135deg, var(--primary), #5e8cff);
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124,92,255,0.3);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Results */
+
+.results-container {
+    margin-top: 18px;
+    max-height: 430px;
+    overflow-y: auto;
+}
+
+.result-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid var(--border);
+}
+
+.result-text {
+    font-size: 13px;
+    line-height: 1.65;
+    color: #d8dcea;
+    margin-bottom: 10px;
+}
+
+.result-meta {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.similarity-score {
+    float: right;
+    color: var(--cyan);
+}
+
+/* Answer */
+
+.answer-container {
+    margin-top: 20px;
+    display: none;
+}
+
+.answer-box {
+    padding: 18px;
+    border-radius: 13px;
+    background: rgba(124,92,255,0.06);
+    border: 1px solid rgba(124,92,255,0.16);
+}
+
+.answer-text {
+    color: #e3e6f1;
+    font-size: 14px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.sources {
+    margin-top: 18px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.sources h4 {
+    color: var(--primary-light);
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.source-item {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.035);
+    border-radius: 7px;
+    margin-bottom: 5px;
+}
+
+/* Stats */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    padding: 18px;
+    border-radius: 13px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid var(--border);
+}
+
+.stat-value {
+    font-size: 25px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-light), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+/* Loading */
+
+.loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.spinner {
+    width: 17px;
+    height: 17px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-top-color: var(--primary-light);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.empty-state {
+    color: var(--muted);
+    text-align: center;
+    padding: 25px;
+    font-size: 13px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #30364a;
+    border-radius: 10px;
+}
+
+/* Responsive */
+
+@media(max-width: 950px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .main {
+        margin-left: 220px;
+        width: calc(100% - 220px);
+        padding: 25px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 700px) {
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+        gap: 15px;
+        flex-direction: column;
+    }
+
+    .input-row {
+        flex-direction: column;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .upload-zone {
+        padding: 30px 15px;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+```
+<div class="logo">
+    <div class="logo-icon">✦</div>
+    <div>
+        <h2>NeuraDocs</h2>
+        <span>AI Knowledge Assistant</span>
+    </div>
+</div>
+
+<div class="nav-title">Workspace</div>
+
+<div class="nav-item active">
+    <span>⌂</span>
+    Dashboard
+</div>
+
+<div class="nav-item">
+    <span>📄</span>
+    Documents
+</div>
+
+<div class="nav-item">
+    <span>🔍</span>
+    Search
+</div>
+
+<div class="nav-item">
+    <span>💬</span>
+    Ask AI
+</div>
+
+<div class="sidebar-stats">
+    <div class="nav-title" style="padding:0; margin-bottom:15px;">
+        Knowledge Base
+    </div>
+
+    <div class="sidebar-stat">
+        <span>Documents</span>
+        <strong id="sideDocuments">0</strong>
+    </div>
+
+    <div class="sidebar-stat">
+        <span>Pages</span>
+        <strong id="sidePages">0</strong>
+    </div>
+
+    <div class="sidebar-stat">
+        <span>Chunks</span>
+        <strong id="sideChunks">0</strong>
+    </div>
+</div>
+```
+
+</aside>
+
+<!-- MAIN -->
+
+<main class="main">
+
+```
+<div class="topbar">
+
+    <div>
+        <h1>Knowledge Workspace</h1>
+        <p>Upload your documents and interact with your private AI knowledge base.</p>
+    </div>
+
+    <div class="status">
+        <div class="status-dot"></div>
+        AI System Online
+    </div>
+
+</div>
+
+
+<!-- UPLOAD -->
+
+<div class="card upload-card">
+
+    <div class="card-header">
+
+        <div class="card-title">
+            <div class="icon">📤</div>
+            <h2>Upload Documents</h2>
+        </div>
+
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+
+        <div class="upload-icon">📄</div>
+
+        <h3>Drop your PDF documents here</h3>
+
+        <p>
+            or <strong>browse files</strong> from your computer
+        </p>
+
+        <p style="margin-top:8px;font-size:11px;">
+            Maximum file size: 50 MB
+        </p>
+
+        <input type="file" id="pdfFile" accept=".pdf" multiple>
+
+    </div>
+
+    <div id="uploadStatus" class="upload-status"></div>
+
+    <div id="documentsList" class="documents-grid"></div>
+
+</div>
+
+
+<!-- SEARCH + ASK -->
+
+<div class="content-grid">
+
+    <!-- SEARCH -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="card-title">
+                <div class="icon">🔍</div>
+                <h2>Semantic Search</h2>
+            </div>
+
+        </div>
+
+        <div class="input-row">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search your knowledge base..."
+            >
+
+            <button class="btn" onclick="performSearch()">
+                Search
+            </button>
+
+        </div>
+
+        <div id="searchResults" class="results-container"></div>
+
+    </div>
+
+
+    <!-- ASK AI -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="card-title">
+                <div class="icon">✨</div>
+                <h2>Ask Your Documents</h2>
+            </div>
+
+        </div>
+
+        <textarea
+            id="questionInput"
+            placeholder="Ask a question about your uploaded documents..."
+        ></textarea>
+
+        <button
+            class="btn"
+            onclick="askQuestion()"
+            style="margin-top:12px;width:100%;"
+        >
+            ✨ Generate Answer
+        </button>
+
+        <div id="answerContainer" class="answer-container">
+
+            <div class="answer-box">
+
+                <div id="answerText" class="answer-text"></div>
+
+                <div id="sourcesContainer" class="sources"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- STATISTICS -->
+
+<div class="card" style="margin-top:25px;">
+
+    <div class="card-header">
+
+        <div class="card-title">
+            <div class="icon">📊</div>
+            <h2>Knowledge Base Overview</h2>
+        </div>
+
+    </div>
+
+    <div id="statsContainer" class="stats"></div>
+
+</div>
+```
+
+</main>
+
+</div>
+
+<script>
+
+const API_BASE = 'http://localhost:5000/api';
+
+const fileInput = document.getElementById('pdfFile');
+const uploadZone = document.getElementById('uploadZone');
+
+
+// CLICK UPLOAD
+
+uploadZone.addEventListener('click', () => {
+    fileInput.click();
+});
+
+
+// DRAG EVENTS
+
+uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+
+    e.preventDefault();
+
+    uploadZone.classList.remove('dragover');
+
+    fileInput.files = e.dataTransfer.files;
+
+    handleFileSelect();
+
+});
+
+
+// FILE SELECT
+
+fileInput.addEventListener('change', handleFileSelect);
+
+
+async function handleFileSelect() {
+
+    const files = fileInput.files;
+
+    if (!files.length) return;
+
+    for (const file of files) {
+
+        if (!file.name.toLowerCase().endsWith('.pdf')) {
+
+            showStatus(
+                'Only PDF files are allowed.',
+                'error'
+            );
+
+            continue;
+        }
+
+        const formData = new FormData();
+
+        formData.append('file', file);
+
+        showStatus(
+            `Uploading ${file.name}...`,
+            'success'
+        );
+
+        try {
+
+            const response = await fetch(
+                `${API_BASE}/upload`,
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+
+                showStatus(
+                    `✓ ${data.filename} uploaded successfully — ${data.pages} pages, ${data.chunks} chunks`,
+                    'success'
+                );
+
+                await loadDocuments();
+                await loadStats();
+
+            } else {
+
+                showStatus(
+                    `Error: ${data.error || 'Upload failed'}`,
+                    'error'
+                );
+
+            }
+
+        } catch (error) {
+
+            showStatus(
+                `Connection error: ${error.message}`,
+                'error'
+            );
+
+        }
+
+    }
+
+    fileInput.value = '';
+
+}
+
+
+function showStatus(message, type) {
+
+    const div = document.getElementById('uploadStatus');
+
+    div.textContent = message;
+
+    div.className =
+        `upload-status ${type}`;
+
+}
+
+
+// LOAD DOCUMENTS
+
+async function loadDocuments() {
+
+    try {
+
+        const response =
+            await fetch(`${API_BASE}/documents`);
+
+        const data =
+            await response.json();
+
+        const list =
+            document.getElementById('documentsList');
+
+        list.innerHTML = '';
+
+        if (
+            data.documents &&
+            Object.keys(data.documents).length
+        ) {
+
+            for (
+                const [docId, doc]
+                of Object.entries(data.documents)
+            ) {
+
+                const item =
+                    document.createElement('div');
+
+                item.className =
+                    'document-item';
+
+                item.innerHTML = `
+
+                    <div class="document-icon">
+                        📄
+                    </div>
+
+                    <div class="document-info">
+
+                        <div class="document-name">
+                            ${escapeHTML(doc.filename)}
+                        </div>
+
+                        <div class="document-meta">
+                            ${doc.pages} pages
+                            •
+                            ${doc.chunks} chunks
+                            •
+                            ${new Date(doc.upload_date)
+                                .toLocaleDateString()}
+                        </div>
+
+                    </div>
+
+                    <button
+                        class="btn-delete"
+                        onclick="deleteDocument('${docId}')"
+                        title="Delete document"
+                    >
+                        🗑
+                    </button>
+
+                `;
+
+                list.appendChild(item);
+
+            }
+
+        } else {
+
+            list.innerHTML =
+                '<div class="empty-state">No documents uploaded yet.</div>';
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Error loading documents:',
+            error
+        );
+
+    }
+
+}
+
+
+// DELETE DOCUMENT
+
+async function deleteDocument(docId) {
+
+    if (
+        !confirm(
+            'Are you sure you want to delete this document?'
+        )
+    ) return;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/delete/${docId}`,
+                {
+                    method: 'DELETE'
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (response.ok) {
+
+            showStatus(
+                'Document deleted successfully.',
+                'success'
+            );
+
+            await loadDocuments();
+
+            await loadStats();
+
+        } else {
+
+            showStatus(
+                data.error || 'Delete failed.',
+                'error'
+            );
+
+        }
+
+    } catch (error) {
+
+        showStatus(
+            `Error: ${error.message}`,
+            'error'
+        );
+
+    }
+
+}
+
+
+// SEARCH
+
+async function performSearch() {
+
+    const query =
+        document
+            .getElementById('searchInput')
+            .value
+            .trim();
+
+    if (!query) return;
+
+    const results =
+        document.getElementById(
+            'searchResults'
+        );
+
+    results.innerHTML = `
+
+        <div class="loading">
+
+            <div class="spinner"></div>
+
+            Searching knowledge base...
+
+        </div>
+
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/search`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body:
+                        JSON.stringify({
+                            query
+                        })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (
+            response.ok &&
+            data.results &&
+            data.results.length
+        ) {
+
+            results.innerHTML = '';
+
+            data.results.forEach(result => {
+
+                const item =
+                    document.createElement('div');
+
+                item.className =
+                    'result-item';
+
+                item.innerHTML = `
+
+                    <div class="result-text">
+                        ${escapeHTML(
+                            result.chunk.substring(0, 300)
+                        )}...
+                    </div>
+
+                    <div class="result-meta">
+
+                        📄 ${escapeHTML(result.filename)}
+                        • Page ${result.page}
+
+                        <span class="similarity-score">
+                            ${(result.similarity * 100)
+                                .toFixed(1)}% relevance
+                        </span>
+
+                    </div>
+
+                `;
+
+                results.appendChild(item);
+
+            });
+
+        } else {
+
+            results.innerHTML =
+                '<div class="empty-state">No relevant information found.</div>';
+
+        }
+
+    } catch (error) {
+
+        results.innerHTML =
+            `<div class="empty-state">
+                Error: ${error.message}
+            </div>`;
+
+    }
+
+}
+
+
+// ASK QUESTION
+
+async function askQuestion() {
+
+    const question =
+        document
+            .getElementById('questionInput')
+            .value
+            .trim();
+
+    if (!question) return;
+
+    const container =
+        document.getElementById(
+            'answerContainer'
+        );
+
+    const answerText =
+        document.getElementById(
+            'answerText'
+        );
+
+    container.style.display =
+        'block';
+
+    answerText.innerHTML = `
+
+        <div class="loading">
+
+            <div class="spinner"></div>
+
+            Analyzing your documents...
+
+        </div>
+
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/ask`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body:
+                        JSON.stringify({
+                            question
+                        })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (response.ok) {
+
+            answerText.textContent =
+                data.answer;
+
+            let sourcesHTML =
+                '<h4>📌 Sources</h4>';
+
+            if (
+                data.sources &&
+                data.sources.length
+            ) {
+
+                data.sources.forEach(
+                    source => {
+
+                        sourcesHTML += `
+
+                            <div class="source-item">
+
+                                📄
+                                ${escapeHTML(
+                                    source.filename
+                                )}
+
+                                • Page
+                                ${source.page}
+
+                            </div>
+
+                        `;
+
+                    }
+                );
+
+            } else {
+
+                sourcesHTML +=
+                    '<div class="source-item">No specific sources found.</div>';
+
+            }
+
+            document.getElementById(
+                'sourcesContainer'
+            ).innerHTML =
+                sourcesHTML;
+
+        } else {
+
+            answerText.textContent =
+                data.error ||
+                'Unable to generate answer.';
+
+        }
+
+    } catch (error) {
+
+        answerText.textContent =
+            `Error: ${error.message}`;
+
+    }
+
+}
+
+
+// LOAD STATS
+
+async function loadStats() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/stats`
+            );
+
+        const data =
+            await response.json();
+
+        if (response.ok) {
+
+            const stats =
+                data.stats;
+
+            document.getElementById(
+                'statsContainer'
+            ).innerHTML = `
+
+                <div class="stat-item">
+
+                    <div class="stat-value">
+                        ${stats.total_documents}
+                    </div>
+
+                    <div class="stat-label">
+                        Documents
+                    </div>
+
+                </div>
+
+                <div class="stat-item">
+
+                    <div class="stat-value">
+                        ${stats.total_pages}
+                    </div>
+
+                    <div class="stat-label">
+                        Pages
+                    </div>
+
+                </div>
+
+                <div class="stat-item">
+
+                    <div class="stat-value">
+                        ${stats.total_chunks}
+                    </div>
+
+                    <div class="stat-label">
+                        Knowledge Chunks
+                    </div>
+
+                </div>
+
+            `;
+
+
+            document.getElementById(
+                'sideDocuments'
+            ).textContent =
+                stats.total_documents;
+
+            document.getElementById(
+                'sidePages'
+            ).textContent =
+                stats.total_pages;
+
+            document.getElementById(
+                'sideChunks'
+            ).textContent =
+                stats.total_chunks;
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Stats error:',
+            error
+        );
+
+    }
+
+}
+
+
+// HTML SAFETY
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement('div');
+
+    div.textContent =
+        text;
+
+    return div.innerHTML;
+
+}
+
+
+// ENTER KEY SEARCH
+
+document
+    .getElementById('searchInput')
+    .addEventListener(
+        'keydown',
+        (e) => {
+
+            if (e.key === 'Enter') {
+
+                performSearch();
+
+            }
+
+        }
+    );
+
+
+// CTRL + ENTER ASK
+
+document
+    .getElementById('questionInput')
+    .addEventListener(
+        'keydown',
+        (e) => {
+
+            if (
+                e.key === 'Enter' &&
+                e.ctrlKey
+            ) {
+
+                askQuestion();
+
+            }
+
+        }
+    );
+
+
+// INITIAL LOAD
+
+loadDocuments();
+
+loadStats();
+
+
+// REFRESH STATS
+
+setInterval(
+    loadStats,
+    30000
+);
+
+</script>
+
+</body>
+</html>
